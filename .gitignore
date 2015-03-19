@@ -57,3 +57,8 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+#Intellij
+.idea/
+target/
+*.iml
