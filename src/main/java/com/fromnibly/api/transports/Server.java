@@ -13,7 +13,6 @@ import com.fromnibly.api.use.KeyHandler;
 import com.fromnibly.api.use.TypeHandler;
 import com.fromnibly.exceptions.ServerException;
 import com.fromnibly.jetty.WyreEndpointConfig;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -22,6 +21,7 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 
 import javax.websocket.Extension;
 import javax.websocket.server.ServerEndpointConfig;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,19 +39,19 @@ public class Server<T> {
     }
 
     public Joiner listen(int port) throws ServerException {
-        return listen(port, "/", new Defaults(), Lists.newArrayList(), Lists.newArrayList());
+        return listen(port, "/", new Defaults(), new ArrayList<String>(), new ArrayList<Extension>());
     }
 
     public Joiner listen(int port, String path) throws ServerException {
-        return listen(port, path, new Defaults(), Lists.newArrayList(), Lists.newArrayList());
+        return listen(port, path, new Defaults(), new ArrayList<String>(), new ArrayList<Extension>());
     }
 
     public Joiner listen(int port, String path, Defaults defaults) throws ServerException {
-        return listen(port, path, defaults, Lists.newArrayList(), Lists.newArrayList());
+        return listen(port, path, defaults, new ArrayList<String>(), new ArrayList<Extension>());
     }
 
     public Joiner listen(int port, String path, Defaults defaults, List<String> subProtocols, List<Extension> extensions) throws ServerException {
-        org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server();
+        final org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server();
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(port);
         server.addConnector(connector);

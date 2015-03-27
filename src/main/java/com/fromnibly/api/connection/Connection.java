@@ -3,6 +3,8 @@ package com.fromnibly.api.connection;
 import com.fromnibly.api.Defaults;
 import com.fromnibly.api.HandlerManager;
 import com.fromnibly.api.WyreCallback;
+import com.fromnibly.api.context.ErrorContext;
+import com.fromnibly.api.context.MessageContext;
 import com.fromnibly.api.use.Direction;
 import com.fromnibly.util.CallbackWrapper;
 import com.fromnibly.util.PromiseFactory;
@@ -28,14 +30,14 @@ public class Connection<T> {
     private final String id;
     private final Session session;
     private final RemoteEndpoint.Basic remote;
-    private final Map<String, Promise<T, Throwable, T>> requestMap;
+    private final Map<String, Deferred<MessageContext<? extends T>, ErrorContext<? extends T>, MessageContext<? extends T>>> requestMap;
     private final Defaults defaults;
     private final HandlerManager<T> handlers;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public Connection(String id,
                       Session session,
-                      Map<String, Promise<T, Throwable, T>> requestMap,
+                      Map<String, Deferred<MessageContext<? extends T>, ErrorContext<? extends T>, MessageContext<? extends T>>> requestMap,
                       Defaults defaults,
                       HandlerManager<T> handlers
     ) {
@@ -64,12 +66,14 @@ public class Connection<T> {
         return send(message, CallbackWrapper.wrap(callback), binary);
     }
 
-    public Promise<T, Throwable, T> send(T message, Deferred<T, Throwable, T> opt) {
+    public Promise<MessageContext<? extends T>, ErrorContext<? extends T>, MessageContext<? extends T>> send(
+            T message,
+            Deferred<MessageContext<? extends T>, ErrorContext<? extends T>, MessageContext<? extends T>> opt) {
         return send(message, opt, defaults.isBinary());
     }
 
-    public Promise<T, Throwable, T> send(T message, Deferred<T, Throwable, T> opt, final boolean binary) {
-        final Deferred<T, Throwable, T> deferred = PromiseFactory.create(opt);
+    public Promise<T, Throwable, T> send(T message, Deferred<? extends T, ErrorContext<? extends T>, ? extends T> opt, final boolean binary) {
+        final Deferred<MessageContext<? extends T>, ErrorContext<? extends T>, MessageContext<? extends T>> deferred = PromiseFactory.create(opt);
         try {
             final String payload = handlers.getCodecHandler().encode(message);
             final Direction direction = handlers.getDirectionHandler().get(message);
